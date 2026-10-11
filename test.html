@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Самопроверка решателей</title>
+  <style>
+    body { margin: 0; padding: 16px; background: #f4f6f8; color: #111; font: 14px Tahoma, "Segoe UI", sans-serif; }
+    h1 { font-size: 18px; }
+    table { border-collapse: collapse; background: #fff; max-width: 1100px; }
+    td { border: 1px solid #ccd; padding: 5px 8px; vertical-align: top; }
+    .ok { color: #0a6b2c; font-weight: bold; }
+    .fail { color: #b00000; font-weight: bold; }
+    .det { color: #444; font-size: 12px; }
+    pre { background: #fff; border: 1px solid #ccd; padding: 8px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <h1>Самопроверка решателей и вариантов</h1>
+  <p id="sum"></p>
+  <table id="out"></table>
+  <h1>Данные вариантов</h1>
+  <div id="vars"></div>
+  <script src="js/solvers.js"></script>
+  <script src="js/variants.js"></script>
+  <script src="js/selftest.js"></script>
+  <script>
+    const res = GTSelfTest.run();
+    const out = document.getElementById('out');
+    for (const r of res) {
+      const tr = out.insertRow();
+      tr.insertCell().innerHTML = r.ok ? '<span class="ok">OK</span>' : '<span class="fail">FAIL</span>';
+      const c = tr.insertCell();
+      c.textContent = r.name;
+      if (r.details) { const d = document.createElement('div'); d.className = 'det'; d.textContent = r.details; c.append(d); }
+    }
+    const failed = res.filter(r => !r.ok).length;
+    document.getElementById('sum').textContent = `Итого: ${res.length - failed} OK, ${failed} FAIL`;
+    const vars = document.getElementById('vars');
+    for (const n of GTVariants.VARIANTS) {
+      const v = GTVariants.getVariant(n);
+      const h = document.createElement('h3');
+      h.textContent = n + ' вар';
+      const pre = document.createElement('pre');
+      pre.textContent = 'Шаг 1: ' + JSON.stringify(v.step1) + '\nШаг 2:\n' +
+        v.step2.map(r => r.map(t => String(t).replace('.', ',').padStart(6)).join('')).join('\n');
+      vars.append(h, pre);
+    }
+  </script>
+</body>
+</html>
